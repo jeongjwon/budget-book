@@ -13,14 +13,26 @@ import TransactionModal from '@/components/TransactionModal';
 import FloatingButton from '@/components/FloatingButton';
 
 export default function Home() {
-  const { activeTab, isModalOpen } = useTransactionStore();
+  const { activeTab, isModalOpen, fetchTransactions, isLoading } = useTransactionStore();
 
-  // Prevent hydration mismatch from localStorage persistence
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
+    fetchTransactions();
   }, []);
+
   if (!mounted) return null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-400">불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

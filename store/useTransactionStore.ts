@@ -1,9 +1,9 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { Transaction } from '@/types/transaction';
 import { today } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 interface TransactionStore {
   transactions: Transaction[];
@@ -11,11 +11,13 @@ interface TransactionStore {
   selectedMonth: number;
   activeTab: 'calendar' | 'list';
   isModalOpen: boolean;
+  isLoading: boolean;
   editingTransaction: Transaction | null;
   defaultDate: string;
-  addTransaction: (tx: Omit<Transaction, 'id'>) => void;
-  updateTransaction: (id: string, updates: Omit<Transaction, 'id'>) => void;
-  removeTransaction: (id: string) => void;
+  fetchTransactions: () => Promise<void>;
+  addTransaction: (tx: Omit<Transaction, 'id'>) => Promise<void>;
+  updateTransaction: (id: string, updates: Omit<Transaction, 'id'>) => Promise<void>;
+  removeTransaction: (id: string) => Promise<void>;
   setMonth: (year: number, month: number) => void;
   setActiveTab: (tab: 'calendar' | 'list') => void;
   setModalOpen: (open: boolean) => void;
@@ -26,44 +28,76 @@ interface TransactionStore {
 
 const now = new Date();
 
-export const useTransactionStore = create<TransactionStore>()(
-  persist(
-    (set) => ({
-      transactions: [],
-      selectedYear: now.getFullYear(),
-      selectedMonth: now.getMonth() + 1,
-      activeTab: 'calendar',
-      isModalOpen: false,
-      editingTransaction: null,
-      defaultDate: today(),
-      addTransaction: (tx) =>
-        set((state) => ({
-          transactions: [...state.transactions, { ...tx, id: crypto.randomUUID() }],
-        })),
-      updateTransaction: (id, updates) =>
-        set((state) => ({
-          transactions: state.transactions.map((t) => (t.id === id ? { ...updates, id } : t)),
-        })),
-      removeTransaction: (id) =>
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
-        })),
-      setMonth: (year, month) => set({ selectedYear: year, selectedMonth: month }),
-      setActiveTab: (tab) => set({ activeTab: tab }),
-      setModalOpen: (open) => set({ isModalOpen: open }),
-      setEditingTransaction: (tx) => set({ editingTransaction: tx }),
-      setDefaultDate: (date) => set({ defaultDate: date }),
-      openModalForDate: (date) => set({ defaultDate: date, isModalOpen: true, editingTransaction: null }),
-    }),
-    {
-      name: 'budget-book-v1',
-      // defaultDate는 localStorage에 저장하지 않음
-      partialize: (state) => ({
-        transactions: state.transactions,
-        selectedYear: state.selectedYear,
-        selectedMonth: state.selectedMonth,
-        activeTab: state.activeTab,
-      }),
-    },
-  ),
-);
+export const useTransactionStore = create<TransactionStore>((set) => ({
+  transactions: [],
+  selectedYear: now.getFullYear(),
+  selectedMonth: now.getMonth() + 1,
+  activeTab: 'calendar',
+  isModalOpen: false,
+  isLoading: false,
+  editingTransaction: null,
+  defaultDate: today(),
+
+  fetchTransactions: async () => {
+    set({ isLoading: true });
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (!error && data) {
+      set({ transactions: data as Transaction[] });
+    }
+    set({ isLoading: false });
+  },
+
+  addTransaction: async (tx) => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert(tx)
+      .select()
+      .single();
+
+    if (!error && data) {
+      set((state) => ({
+        transactions: [...state.transactions, data as Transaction],
+      }));
+    }
+  },
+
+  updateTransaction: async (id, updates) => {
+    const { error } = await supabase
+      .from('transactions')
+      .update(updates)
+      .eq('id', id);
+
+    if (!error) {
+      set((state) => ({
+        transactions: state.transactions.map((t) =>
+          t.id === id ? { ...updates, id } : t,
+        ),
+      }));
+    }
+  },
+
+  removeTransaction: async (id) => {
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      set((state) => ({
+        transactions: state.transactions.filter((t) => t.id !== id),
+      }));
+    }
+  },
+
+  setMonth: (year, month) => set({ selectedYear: year, selectedMonth: month }),
+  setActiveTab: (tab) => set({ activeTab: tab }),
+  setModalOpen: (open) => set({ isModalOpen: open }),
+  setEditingTransaction: (tx) => set({ editingTransaction: tx }),
+  setDefaultDate: (date) => set({ defaultDate: date }),
+  openModalForDate: (date) =>
+    set({ defaultDate: date, isModalOpen: true, editingTransaction: null }),
+}));
