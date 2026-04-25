@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useTransactionStore } from '@/store/useTransactionStore';
-import Header from '@/components/Header';
-import TabBar from '@/components/TabBar';
-import CalendarView from '@/components/CalendarView';
-import ListView from '@/components/ListView';
-import MonthlySummary from '@/components/MonthlySummary';
-import CategoryTable from '@/components/CategoryTable';
-import Charts from '@/components/Charts';
-import TransactionModal from '@/components/TransactionModal';
-import FloatingButton from '@/components/FloatingButton';
+import { useEffect, useState } from "react";
+import { useTransactionStore } from "@/store/useTransactionStore";
+import Header from "@/components/Header";
+import TabBar from "@/components/TabBar";
+import CalendarView from "@/components/CalendarView";
+import ListView from "@/components/ListView";
+import MonthlySummary from "@/components/MonthlySummary";
+import CategoryTable from "@/components/CategoryTable";
+import Charts from "@/components/Charts";
+import TransactionModal from "@/components/TransactionModal";
+import FloatingButton from "@/components/FloatingButton";
 
 export default function Home() {
-  const { activeTab, isModalOpen, fetchTransactions, isLoading } = useTransactionStore();
+  const { activeTab, isModalOpen, fetchTransactions, isLoading } =
+    useTransactionStore();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -39,10 +40,10 @@ export default function Home() {
       <Header />
       <main className="max-w-2xl mx-auto pb-28">
         <MonthlySummary />
-        <TabBar />
-        {activeTab === 'calendar' ? <CalendarView /> : <ListView />}
         <CategoryTable />
         <Charts />
+        <TabBar />
+        {activeTab === "calendar" ? <CalendarView /> : <ListView />}
       </main>
       <FloatingButton />
       {isModalOpen && <TransactionModal />}

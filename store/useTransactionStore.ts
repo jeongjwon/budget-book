@@ -1,25 +1,28 @@
-'use client';
+"use client";
 
-import { create } from 'zustand';
-import { Transaction } from '@/types/transaction';
-import { today } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { create } from "zustand";
+import { Transaction } from "@/types/transaction";
+import { today } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 interface TransactionStore {
   transactions: Transaction[];
   selectedYear: number;
   selectedMonth: number;
-  activeTab: 'calendar' | 'list';
+  activeTab: "calendar" | "list";
   isModalOpen: boolean;
   isLoading: boolean;
   editingTransaction: Transaction | null;
   defaultDate: string;
   fetchTransactions: () => Promise<void>;
-  addTransaction: (tx: Omit<Transaction, 'id'>) => Promise<void>;
-  updateTransaction: (id: string, updates: Omit<Transaction, 'id'>) => Promise<void>;
+  addTransaction: (tx: Omit<Transaction, "id">) => Promise<void>;
+  updateTransaction: (
+    id: string,
+    updates: Omit<Transaction, "id">,
+  ) => Promise<void>;
   removeTransaction: (id: string) => Promise<void>;
   setMonth: (year: number, month: number) => void;
-  setActiveTab: (tab: 'calendar' | 'list') => void;
+  setActiveTab: (tab: "calendar" | "list") => void;
   setModalOpen: (open: boolean) => void;
   setEditingTransaction: (tx: Transaction | null) => void;
   setDefaultDate: (date: string) => void;
@@ -32,7 +35,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   transactions: [],
   selectedYear: now.getFullYear(),
   selectedMonth: now.getMonth() + 1,
-  activeTab: 'calendar',
+  activeTab: "calendar",
   isModalOpen: false,
   isLoading: false,
   editingTransaction: null,
@@ -41,9 +44,9 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   fetchTransactions: async () => {
     set({ isLoading: true });
     const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('date', { ascending: false });
+      .from("transactions")
+      .select("*")
+      .order("date", { ascending: false });
 
     if (!error && data) {
       set({ transactions: data as Transaction[] });
@@ -53,7 +56,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
 
   addTransaction: async (tx) => {
     const { data, error } = await supabase
-      .from('transactions')
+      .from("transactions")
       .insert(tx)
       .select()
       .single();
@@ -67,9 +70,9 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
 
   updateTransaction: async (id, updates) => {
     const { error } = await supabase
-      .from('transactions')
+      .from("transactions")
       .update(updates)
-      .eq('id', id);
+      .eq("id", id);
 
     if (!error) {
       set((state) => ({
@@ -81,10 +84,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   },
 
   removeTransaction: async (id) => {
-    const { error } = await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
 
     if (!error) {
       set((state) => ({
