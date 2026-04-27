@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTransactionStore } from "@/store/useTransactionStore";
 import Header from "@/components/Header";
 import TabBar from "@/components/TabBar";
@@ -14,16 +15,44 @@ import TransactionModal from "@/components/TransactionModal";
 import FloatingButton from "@/components/FloatingButton";
 
 export default function Home() {
-  const { activeTab, isModalOpen, fetchTransactions, isLoading } =
-    useTransactionStore();
-
+  const {
+    activeTab,
+    isModalOpen,
+    fetchTransactions,
+    isLoading,
+    user,
+    isAuthLoading,
+  } = useTransactionStore();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
-    fetchTransactions();
   }, []);
 
-  if (!mounted) return null;
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.replace("/login");
+    }
+  }, [user, isAuthLoading]);
+
+  // Fetch transactions once the user is confirmed
+  useEffect(() => {
+    if (user) {
+      fetchTransactions();
+    }
+  }, [user]);
+
+  if (!mounted || isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   if (isLoading) {
     return (
@@ -41,9 +70,9 @@ export default function Home() {
       <Header />
       <main className="max-w-2xl mx-auto pb-28">
         <MonthlySummary />
-        <Charts /> {/* 월별 수입/지출 흐름 */}
-        <CategoryTable /> {/* 카테고리별 내역 */}
-        <FrequentTransactions /> {/* 자주 쓰는 거래 */}
+        <Charts />
+        <CategoryTable />
+        <FrequentTransactions />
         <TabBar />
         {activeTab === "calendar" ? <CalendarView /> : <ListView />}
       </main>
