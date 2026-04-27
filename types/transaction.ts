@@ -32,3 +32,11 @@ export interface Transaction {
   amount: number;
   memo?: string;
 }
+
+export interface TransactionTemplate {
+  id: string;
+  type: TransactionType;
+  category: Category;
+  amount: number;
+  memo?: string;
+}

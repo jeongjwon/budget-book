@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import {
   INCOME_CATEGORIES,
@@ -17,27 +17,41 @@ export default function TransactionModal() {
     setModalOpen,
     editingTransaction,
     setEditingTransaction,
+    prefillTransaction,
+    clearPrefill,
     defaultDate,
     setDefaultDate,
   } = useTransactionStore();
 
   const isEdit = !!editingTransaction;
+  const prefill = isEdit ? null : prefillTransaction;
 
   const [date, setDate] = useState(editingTransaction?.date ?? defaultDate);
-  const [type, setType] = useState<TransactionType>(editingTransaction?.type ?? 'expense');
+  const [type, setType] = useState<TransactionType>(
+    editingTransaction?.type ?? prefill?.type ?? 'expense',
+  );
   const [category, setCategory] = useState<Category>(
-    editingTransaction?.category ?? EXPENSE_CATEGORIES[0],
+    editingTransaction?.category ?? prefill?.category ?? EXPENSE_CATEGORIES[0],
   );
   const [amount, setAmount] = useState(
-    editingTransaction ? editingTransaction.amount.toLocaleString('ko-KR') : '',
+    editingTransaction
+      ? editingTransaction.amount.toLocaleString('ko-KR')
+      : prefill?.amount
+        ? prefill.amount.toLocaleString('ko-KR')
+        : '',
   );
-  const [memo, setMemo] = useState(editingTransaction?.memo ?? '');
+  const [memo, setMemo] = useState(editingTransaction?.memo ?? prefill?.memo ?? '');
   const [error, setError] = useState('');
 
   const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
-  // Reset category when type changes (only in create mode)
+  // Skip the first run so prefilled category is preserved on mount
+  const skipTypeReset = useRef(true);
   useEffect(() => {
+    if (skipTypeReset.current) {
+      skipTypeReset.current = false;
+      return;
+    }
     if (!isEdit) setCategory(categories[0]);
   }, [type]);
 
@@ -45,6 +59,7 @@ export default function TransactionModal() {
     setEditingTransaction(null);
     setDefaultDate(today());
     setModalOpen(false);
+    clearPrefill();
   };
 
   const handleSubmit = () => {

@@ -9,6 +9,7 @@ import ListView from "@/components/ListView";
 import MonthlySummary from "@/components/MonthlySummary";
 import CategoryTable from "@/components/CategoryTable";
 import Charts from "@/components/Charts";
+import FrequentTransactions from "@/components/FrequentTransactions";
 import TransactionModal from "@/components/TransactionModal";
 import FloatingButton from "@/components/FloatingButton";
 
@@ -40,8 +41,9 @@ export default function Home() {
       <Header />
       <main className="max-w-2xl mx-auto pb-28">
         <MonthlySummary />
-        <CategoryTable />
-        <Charts />
+        <Charts /> {/* 월별 수입/지출 흐름 */}
+        <CategoryTable /> {/* 카테고리별 내역 */}
+        <FrequentTransactions /> {/* 자주 쓰는 거래 */}
         <TabBar />
         {activeTab === "calendar" ? <CalendarView /> : <ListView />}
       </main>

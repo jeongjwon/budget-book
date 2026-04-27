@@ -13,6 +13,7 @@ interface TransactionStore {
   isModalOpen: boolean;
   isLoading: boolean;
   editingTransaction: Transaction | null;
+  prefillTransaction: Partial<Omit<Transaction, "id" | "date">> | null;
   defaultDate: string;
   fetchTransactions: () => Promise<void>;
   addTransaction: (tx: Omit<Transaction, "id">) => Promise<void>;
@@ -27,6 +28,8 @@ interface TransactionStore {
   setEditingTransaction: (tx: Transaction | null) => void;
   setDefaultDate: (date: string) => void;
   openModalForDate: (date: string) => void;
+  openModalWithPrefill: (data: Partial<Omit<Transaction, "id" | "date">>) => void;
+  clearPrefill: () => void;
 }
 
 const now = new Date();
@@ -39,6 +42,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   isModalOpen: false,
   isLoading: false,
   editingTransaction: null,
+  prefillTransaction: null,
   defaultDate: today(),
 
   fetchTransactions: async () => {
@@ -99,5 +103,8 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   setEditingTransaction: (tx) => set({ editingTransaction: tx }),
   setDefaultDate: (date) => set({ defaultDate: date }),
   openModalForDate: (date) =>
-    set({ defaultDate: date, isModalOpen: true, editingTransaction: null }),
+    set({ defaultDate: date, isModalOpen: true, editingTransaction: null, prefillTransaction: null }),
+  openModalWithPrefill: (data) =>
+    set({ prefillTransaction: data, isModalOpen: true, editingTransaction: null }),
+  clearPrefill: () => set({ prefillTransaction: null }),
 }));
