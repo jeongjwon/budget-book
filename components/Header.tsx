@@ -36,16 +36,25 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
       <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-        <button
-          onClick={goToPrev}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 text-xl transition-colors"
-          aria-label="이전 달"
-        >
-          ‹
-        </button>
-        <h1 className="text-lg font-bold text-gray-800">
-          {formatMonthYear(selectedYear, selectedMonth)}
-        </h1>
+        <div className="flex items-center">
+          <button
+            onClick={goToPrev}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 text-xl transition-colors"
+            aria-label="이전 달"
+          >
+            ‹
+          </button>
+          <h1 className="text-lg font-bold text-gray-800 px-3 min-w-[120px] text-center">
+            {formatMonthYear(selectedYear, selectedMonth)}
+          </h1>
+          <button
+            onClick={goToNext}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 text-xl transition-colors"
+            aria-label="다음 달"
+          >
+            ›
+          </button>
+        </div>
 
         {/* User avatar + logout menu */}
         <div className="relative">
@@ -56,7 +65,11 @@ export default function Header() {
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
             ) : (
               initial
             )}
