@@ -24,10 +24,6 @@ export default function LoginPage() {
     });
   };
 
-  const handleNaver = () => {
-    window.location.href = "/api/auth/naver";
-  };
-
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -80,16 +76,6 @@ export default function LoginPage() {
             <KakaoIcon />
             카카오로 시작하기 (준비중)
           </div>
-
-          {/* 네이버 로그인 */}
-          {/* <button
-            onClick={handleNaver}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-semibold text-sm text-white transition-all active:scale-95"
-            style={{ backgroundColor: "#03C75A" }}
-          >
-            <NaverIcon />
-            네이버로 시작하기
-          </button> */}
         </div>
 
         <p className="text-center text-xs text-gray-300 mt-8 leading-relaxed">
@@ -108,17 +94,6 @@ function KakaoIcon() {
         clipRule="evenodd"
         d="M9 1.5C4.858 1.5 1.5 4.134 1.5 7.38c0 2.088 1.314 3.924 3.312 4.986l-.846 3.156c-.072.264.198.474.432.324L8.1 13.71c.294.03.594.048.9.048 4.142 0 7.5-2.634 7.5-5.88S13.142 1.5 9 1.5z"
         fill="#000000CC"
-      />
-    </svg>
-  );
-}
-
-function NaverIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path
-        d="M9.12 8.267L6.72 4.5H4.5v7h2.38V7.733L9.28 11.5H11.5v-7H9.12v3.767z"
-        fill="white"
       />
     </svg>
   );

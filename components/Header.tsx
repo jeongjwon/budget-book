@@ -75,7 +75,7 @@ export default function Header() {
                   <p className="text-xs font-semibold text-gray-700 truncate">
                     {displayName}
                   </p>
-                  {user?.email && !user.email.includes("naver.local") && (
+                  {user?.email && (
                     <p className="text-[10px] text-gray-400 truncate mt-0.5">
                       {user.email}
                     </p>

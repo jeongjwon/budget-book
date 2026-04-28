@@ -26,7 +26,6 @@ export default function AuthCallback() {
           return;
         }
       }
-      // Naver via magic link: Supabase auto-detects hash fragments on session
 
       const {
         data: { session },
