@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import pigLogo from "../pig.png";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,9 +40,14 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
-          {/* TODO */}
-          <div className="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">가</span>
+          <div className="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
+            <Image
+              src={pigLogo}
+              alt="Piggy Book Logo"
+              width={64}
+              height={64}
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-800">가계부</h1>
           <p className="text-sm text-gray-400 mt-1">
