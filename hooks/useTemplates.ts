@@ -2,39 +2,90 @@
 
 import { useState, useEffect } from "react";
 import { TransactionTemplate } from "@/types/transaction";
-
-const STORAGE_KEY = "budget_book_templates";
+import { supabase } from "@/lib/supabase";
 
 export function useTemplates() {
   const [templates, setTemplates] = useState<TransactionTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchTemplates = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("transaction_templates")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setTemplates(data || []);
+    } catch (err) {
+      console.error("Error fetching templates:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setTemplates(JSON.parse(stored));
-      } catch {
-        // ignore corrupted data
-      }
-    }
+    fetchTemplates();
   }, []);
 
-  const persist = (list: TransactionTemplate[]) => {
-    setTemplates(list);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  const addTemplate = async (t: Omit<TransactionTemplate, "id">) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("transaction_templates")
+        .insert([{ ...t, user_id: user.id }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setTemplates([...templates, data]);
+    } catch (err) {
+      console.error("Error adding template:", err);
+    }
   };
 
-  const addTemplate = (t: Omit<TransactionTemplate, "id">) => {
-    persist([...templates, { ...t, id: crypto.randomUUID() }]);
+  const updateTemplate = async (
+    id: string,
+    data: Omit<TransactionTemplate, "id">,
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("transaction_templates")
+        .update(data)
+        .eq("id", id);
+
+      if (error) throw error;
+      setTemplates(templates.map((t) => (t.id === id ? { ...data, id } : t)));
+    } catch (err) {
+      console.error("Error updating template:", err);
+    }
   };
 
-  const updateTemplate = (id: string, data: Omit<TransactionTemplate, "id">) => {
-    persist(templates.map((t) => (t.id === id ? { ...data, id } : t)));
+  const removeTemplate = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("transaction_templates")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      setTemplates(templates.filter((t) => t.id !== id));
+    } catch (err) {
+      console.error("Error removing template:", err);
+    }
   };
 
-  const removeTemplate = (id: string) => {
-    persist(templates.filter((t) => t.id !== id));
+  return {
+    templates,
+    loading,
+    addTemplate,
+    updateTemplate,
+    removeTemplate,
+    refresh: fetchTemplates,
   };
-
-  return { templates, addTemplate, updateTemplate, removeTemplate };
 }

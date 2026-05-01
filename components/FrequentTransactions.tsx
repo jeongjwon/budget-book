@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useTransactionStore } from "@/store/useTransactionStore";
 import CollapsibleSection from "./CollapsibleSection";
 import { useTemplates } from "@/hooks/useTemplates";
@@ -24,7 +24,7 @@ function TemplateFormModal({
 }) {
   const [type, setType] = useState<TransactionType>(initial?.type ?? "expense");
   const [category, setCategory] = useState<Category>(
-    initial?.category ?? EXPENSE_CATEGORIES[0],
+    initial?.category ?? (type === "income" ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]),
   );
   const [amount, setAmount] = useState(
     initial?.amount ? initial.amount.toLocaleString("ko-KR") : "",
@@ -34,14 +34,10 @@ function TemplateFormModal({
 
   const categories = type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
-  const skipTypeReset = useRef(true);
-  useEffect(() => {
-    if (skipTypeReset.current) {
-      skipTypeReset.current = false;
-      return;
-    }
-    setCategory(categories[0]);
-  }, [type]);
+  const handleTypeChange = (newType: TransactionType) => {
+    setType(newType);
+    setCategory(newType === "income" ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]);
+  };
 
   const handleSave = () => {
     const parsed = Number(amount.replace(/,/g, ""));
@@ -83,7 +79,7 @@ function TemplateFormModal({
               {(["income", "expense"] as const).map((t) => (
                 <button
                   key={t}
-                  onClick={() => setType(t)}
+                  onClick={() => handleTypeChange(t)}
                   className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                     type === t
                       ? t === "income"
@@ -168,7 +164,7 @@ function TemplateFormModal({
 
 export default function FrequentTransactions() {
   const { openModalWithPrefill } = useTransactionStore();
-  const { templates, addTemplate, updateTemplate, removeTemplate } =
+  const { templates, loading, addTemplate, updateTemplate, removeTemplate } =
     useTemplates();
   const [isEditMode, setIsEditMode] = useState(false);
   // null = closed, "new" = adding, TransactionTemplate = editing
@@ -221,7 +217,11 @@ export default function FrequentTransactions() {
         defaultOpen={true}
         headerAction={editButton}
       >
-        {templates.length === 0 ? (
+        {loading ? (
+          <div className="px-4 py-10 flex justify-center">
+            <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : templates.length === 0 ? (
           <div className="px-4 py-8 flex flex-col items-center gap-3">
             <p className="text-sm text-gray-300 text-center leading-relaxed">
               자주 쓰는 거래를 등록하면

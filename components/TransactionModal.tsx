@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import {
   INCOME_CATEGORIES,
@@ -30,9 +30,16 @@ export default function TransactionModal() {
   const [type, setType] = useState<TransactionType>(
     editingTransaction?.type ?? prefill?.type ?? 'expense',
   );
-  const [category, setCategory] = useState<Category>(
-    editingTransaction?.category ?? prefill?.category ?? EXPENSE_CATEGORIES[0],
-  );
+  
+  // Initialize category based on editing/prefill or default to the first category of the current type
+  const [category, setCategory] = useState<Category>(() => {
+    if (editingTransaction) return editingTransaction.category;
+    if (prefill?.category) return prefill.category;
+    return (editingTransaction?.type ?? prefill?.type ?? 'expense') === 'income' 
+      ? INCOME_CATEGORIES[0] 
+      : EXPENSE_CATEGORIES[0];
+  });
+
   const [amount, setAmount] = useState(
     editingTransaction
       ? editingTransaction.amount.toLocaleString('ko-KR')
@@ -45,15 +52,11 @@ export default function TransactionModal() {
 
   const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
-  // Skip the first run so prefilled category is preserved on mount
-  const skipTypeReset = useRef(true);
-  useEffect(() => {
-    if (skipTypeReset.current) {
-      skipTypeReset.current = false;
-      return;
-    }
-    if (!isEdit) setCategory(categories[0]);
-  }, [type]);
+  const handleTypeChange = (newType: TransactionType) => {
+    setType(newType);
+    // Reset category to the first one of the new type
+    setCategory(newType === 'income' ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]);
+  };
 
   const handleClose = () => {
     setEditingTransaction(null);
@@ -110,7 +113,7 @@ export default function TransactionModal() {
               {(['income', 'expense'] as const).map((t) => (
                 <button
                   key={t}
-                  onClick={() => setType(t)}
+                  onClick={() => handleTypeChange(t)}
                   className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                     type === t
                       ? t === 'income'
