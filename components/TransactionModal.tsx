@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useTransactionStore } from '@/store/useTransactionStore';
+import { useState } from "react";
+import { useTransactionStore } from "@/store/useTransactionStore";
 import {
   INCOME_CATEGORIES,
   EXPENSE_CATEGORIES,
   TransactionType,
   Category,
-} from '@/types/transaction';
-import { today } from '@/lib/utils';
+} from "@/types/transaction";
+import { today } from "@/lib/utils";
 
 export default function TransactionModal() {
   const {
@@ -28,34 +28,46 @@ export default function TransactionModal() {
 
   const [date, setDate] = useState(editingTransaction?.date ?? defaultDate);
   const [type, setType] = useState<TransactionType>(
-    editingTransaction?.type ?? prefill?.type ?? 'expense',
+    editingTransaction?.type ?? prefill?.type ?? "expense",
   );
-  
+
   // Initialize category based on editing/prefill or default to the first category of the current type
+  // const [category, setCategory] = useState<Category>(() => {
+  //   if (editingTransaction) return editingTransaction.category;
+  //   if (prefill?.category) return prefill.category;
+  //   return (editingTransaction?.type ?? prefill?.type ?? 'expense') === 'income'
+  //     ? INCOME_CATEGORIES[0]
+  //     : EXPENSE_CATEGORIES[0];
+  // });
   const [category, setCategory] = useState<Category>(() => {
     if (editingTransaction) return editingTransaction.category;
     if (prefill?.category) return prefill.category;
-    return (editingTransaction?.type ?? prefill?.type ?? 'expense') === 'income' 
-      ? INCOME_CATEGORIES[0] 
+
+    return (prefill?.type ?? "expense") === "income"
+      ? INCOME_CATEGORIES[0]
       : EXPENSE_CATEGORIES[0];
   });
 
   const [amount, setAmount] = useState(
     editingTransaction
-      ? editingTransaction.amount.toLocaleString('ko-KR')
+      ? editingTransaction.amount.toLocaleString("ko-KR")
       : prefill?.amount
-        ? prefill.amount.toLocaleString('ko-KR')
-        : '',
+        ? prefill.amount.toLocaleString("ko-KR")
+        : "",
   );
-  const [memo, setMemo] = useState(editingTransaction?.memo ?? prefill?.memo ?? '');
-  const [error, setError] = useState('');
+  const [memo, setMemo] = useState(
+    editingTransaction?.memo ?? prefill?.memo ?? "",
+  );
+  const [error, setError] = useState("");
 
-  const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const categories = type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   const handleTypeChange = (newType: TransactionType) => {
     setType(newType);
     // Reset category to the first one of the new type
-    setCategory(newType === 'income' ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]);
+    setCategory(
+      newType === "income" ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0],
+    );
   };
 
   const handleClose = () => {
@@ -66,11 +78,18 @@ export default function TransactionModal() {
   };
 
   const handleSubmit = () => {
-    const parsed = Number(amount.replace(/,/g, ''));
-    if (!date) return setError('날짜를 선택해주세요.');
-    if (isNaN(parsed) || parsed <= 0) return setError('올바른 금액을 입력해주세요.');
+    const parsed = Number(amount.replace(/,/g, ""));
+    if (!date) return setError("날짜를 선택해주세요.");
+    if (isNaN(parsed) || parsed <= 0)
+      return setError("올바른 금액을 입력해주세요.");
 
-    const payload = { date, type, category, amount: parsed, memo: memo.trim() || undefined };
+    const payload = {
+      date,
+      type,
+      category,
+      amount: parsed,
+      memo: memo.trim() || undefined,
+    };
 
     if (isEdit) {
       updateTransaction(editingTransaction.id, payload);
@@ -81,9 +100,9 @@ export default function TransactionModal() {
   };
 
   const handleAmountChange = (v: string) => {
-    const digits = v.replace(/[^0-9]/g, '');
-    setAmount(digits ? Number(digits).toLocaleString('ko-KR') : '');
-    setError('');
+    const digits = v.replace(/[^0-9]/g, "");
+    setAmount(digits ? Number(digits).toLocaleString("ko-KR") : "");
+    setError("");
   };
 
   return (
@@ -95,7 +114,7 @@ export default function TransactionModal() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-gray-800">
-            {isEdit ? '거래 수정' : '거래 추가'}
+            {isEdit ? "거래 수정" : "거래 추가"}
           </h2>
           <button
             onClick={handleClose}
@@ -108,21 +127,23 @@ export default function TransactionModal() {
         <div className="flex flex-col gap-4">
           {/* Type toggle */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">대분류</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+              대분류
+            </label>
             <div className="flex rounded-xl overflow-hidden border border-gray-200">
-              {(['income', 'expense'] as const).map((t) => (
+              {(["income", "expense"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => handleTypeChange(t)}
                   className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                     type === t
-                      ? t === 'income'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-red-500 text-white'
-                      : 'bg-white text-gray-500 hover:bg-gray-50'
+                      ? t === "income"
+                        ? "bg-blue-500 text-white"
+                        : "bg-red-500 text-white"
+                      : "bg-white text-gray-500 hover:bg-gray-50"
                   }`}
                 >
-                  {t === 'income' ? '수입' : '지출'}
+                  {t === "income" ? "수입" : "지출"}
                 </button>
               ))}
             </div>
@@ -130,7 +151,9 @@ export default function TransactionModal() {
 
           {/* Date */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">날짜</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+              날짜
+            </label>
             <input
               type="date"
               value={date}
@@ -141,7 +164,9 @@ export default function TransactionModal() {
 
           {/* Category */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">소분류</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+              소분류
+            </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
@@ -157,7 +182,9 @@ export default function TransactionModal() {
 
           {/* Amount */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1.5 block">금액</label>
+            <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+              금액
+            </label>
             <div className="relative">
               <input
                 type="text"
@@ -193,12 +220,12 @@ export default function TransactionModal() {
           <button
             onClick={handleSubmit}
             className={`w-full py-3 rounded-xl text-white font-semibold text-sm transition-colors ${
-              type === 'income'
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-red-500 hover:bg-red-600'
+              type === "income"
+                ? "bg-blue-500 hover:bg-blue-600"
+                : "bg-red-500 hover:bg-red-600"
             }`}
           >
-            {isEdit ? '수정하기' : '추가하기'}
+            {isEdit ? "수정하기" : "추가하기"}
           </button>
         </div>
       </div>
