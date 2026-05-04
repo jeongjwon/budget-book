@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useTransactionStore } from "@/store/useTransactionStore";
-import { formatMonthYear, getPrevMonth, getNextMonth } from "@/lib/utils";
+import { formatMonthYear, getPrevMonth, getNextMonth, downloadMonthlyReport } from "@/lib/utils";
 
 export default function Header() {
-  const { selectedYear, selectedMonth, setMonth, user, signOut } =
+  const { selectedYear, selectedMonth, setMonth, user, signOut, transactions } =
     useTransactionStore();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -22,6 +22,11 @@ export default function Header() {
   const handleSignOut = async () => {
     setShowMenu(false);
     await signOut();
+  };
+
+  const handleExportReport = () => {
+    setShowMenu(false);
+    downloadMonthlyReport(transactions, selectedYear, selectedMonth);
   };
 
   const displayName: string =
@@ -94,6 +99,12 @@ export default function Header() {
                     </p>
                   )}
                 </div>
+                <button
+                  onClick={handleExportReport}
+                  className="w-full px-4 py-2.5 text-sm text-gray-700 text-left hover:bg-gray-50 transition-colors"
+                >
+                  리포트 내보내기
+                </button>
                 <button
                   onClick={handleSignOut}
                   className="w-full px-4 py-2.5 text-sm text-red-500 text-left hover:bg-red-50 transition-colors"

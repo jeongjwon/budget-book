@@ -32,13 +32,6 @@ export default function TransactionModal() {
   );
 
   // Initialize category based on editing/prefill or default to the first category of the current type
-  // const [category, setCategory] = useState<Category>(() => {
-  //   if (editingTransaction) return editingTransaction.category;
-  //   if (prefill?.category) return prefill.category;
-  //   return (editingTransaction?.type ?? prefill?.type ?? 'expense') === 'income'
-  //     ? INCOME_CATEGORIES[0]
-  //     : EXPENSE_CATEGORIES[0];
-  // });
   const [category, setCategory] = useState<Category>(() => {
     if (editingTransaction) return editingTransaction.category;
     if (prefill?.category) return prefill.category;

@@ -67,22 +67,22 @@ export default function LoginPage() {
           </button>
 
           {/* 카카오 로그인 */}
-          {/* <button
+          <button
             onClick={handleKakao}
             className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95"
             style={{ backgroundColor: "#FEE500", color: "#000000CC" }}
           >
             <KakaoIcon />
             카카오로 시작하기
-          </button> */}
+          </button>
 
-          <div
+          {/* <div
             className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95"
             style={{ backgroundColor: "#FEE500", color: "#000000CC" }}
           >
             <KakaoIcon />
             카카오로 시작하기 (준비중)
-          </div>
+          </div> */}
         </div>
 
         <p className="text-center text-xs text-gray-300 mt-8 leading-relaxed">
