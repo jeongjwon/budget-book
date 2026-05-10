@@ -9,22 +9,18 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handle = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
-      const errorParam = params.get("error");
-
+      const errorParam = new URLSearchParams(window.location.search).get("error");
       if (errorParam) {
         router.replace(`/login?error=${errorParam}`);
         return;
       }
 
-      if (code) {
-        // Kakao OAuth — PKCE code exchange
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          router.replace("/login?error=callback_failed");
-          return;
-        }
+      // The Supabase client automatically exchanges the PKCE code on initialization
+      // (called from the constructor). We just await that here to catch any errors.
+      const { error } = await supabase.auth.initialize();
+      if (error) {
+        router.replace("/login?error=callback_failed");
+        return;
       }
 
       const {

@@ -45,8 +45,12 @@ export const useTransactionStore = create<TransactionStore>((set, get) => {
       set({ user: session?.user ?? null, isAuthLoading: false });
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ user: session?.user ?? null, isAuthLoading: false });
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        set({ user: null, isAuthLoading: false, transactions: [] });
+      } else {
+        set({ user: session?.user ?? null, isAuthLoading: false });
+      }
     });
   }
 
