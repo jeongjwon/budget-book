@@ -7,24 +7,15 @@ import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
 interface TransactionStore {
-  transactions: Transaction[];
   selectedYear: number;
   selectedMonth: number;
   activeTab: "calendar" | "list";
   isModalOpen: boolean;
-  isLoading: boolean;
   editingTransaction: Transaction | null;
   prefillTransaction: Partial<Omit<Transaction, "id" | "date">> | null;
   defaultDate: string;
   user: User | null;
   isAuthLoading: boolean;
-  fetchTransactions: () => Promise<void>;
-  addTransaction: (tx: Omit<Transaction, "id">) => Promise<void>;
-  updateTransaction: (
-    id: string,
-    updates: Omit<Transaction, "id">,
-  ) => Promise<void>;
-  removeTransaction: (id: string) => Promise<void>;
   setMonth: (year: number, month: number) => void;
   setActiveTab: (tab: "calendar" | "list") => void;
   setModalOpen: (open: boolean) => void;
@@ -38,8 +29,7 @@ interface TransactionStore {
 
 const now = new Date();
 
-export const useTransactionStore = create<TransactionStore>((set, get) => {
-  // Initialize auth state and listen for changes
+export const useTransactionStore = create<TransactionStore>((set) => {
   if (typeof window !== "undefined") {
     supabase.auth.getSession().then(({ data: { session } }) => {
       set({ user: session?.user ?? null, isAuthLoading: false });
@@ -47,7 +37,7 @@ export const useTransactionStore = create<TransactionStore>((set, get) => {
 
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
-        set({ user: null, isAuthLoading: false, transactions: [] });
+        set({ user: null, isAuthLoading: false });
       } else {
         set({ user: session?.user ?? null, isAuthLoading: false });
       }
@@ -55,72 +45,15 @@ export const useTransactionStore = create<TransactionStore>((set, get) => {
   }
 
   return {
-    transactions: [],
     selectedYear: now.getFullYear(),
     selectedMonth: now.getMonth() + 1,
     activeTab: "calendar",
     isModalOpen: false,
-    isLoading: false,
     editingTransaction: null,
     prefillTransaction: null,
     defaultDate: today(),
     user: null,
     isAuthLoading: true,
-
-    fetchTransactions: async () => {
-      set({ isLoading: true });
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("*")
-        .order("date", { ascending: false });
-
-      if (!error && data) {
-        set({ transactions: data as Transaction[] });
-      }
-      set({ isLoading: false });
-    },
-
-    addTransaction: async (tx) => {
-      const user = get().user;
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert({ ...tx, user_id: user.id })
-        .select()
-        .single();
-
-      if (!error && data) {
-        set((state) => ({
-          transactions: [...state.transactions, data as Transaction],
-        }));
-      }
-    },
-
-    updateTransaction: async (id, updates) => {
-      const { error } = await supabase
-        .from("transactions")
-        .update(updates)
-        .eq("id", id);
-
-      if (!error) {
-        set((state) => ({
-          transactions: state.transactions.map((t) =>
-            t.id === id ? { ...updates, id } : t,
-          ),
-        }));
-      }
-    },
-
-    removeTransaction: async (id) => {
-      const { error } = await supabase.from("transactions").delete().eq("id", id);
-
-      if (!error) {
-        set((state) => ({
-          transactions: state.transactions.filter((t) => t.id !== id),
-        }));
-      }
-    },
 
     setMonth: (year, month) => set({ selectedYear: year, selectedMonth: month }),
     setActiveTab: (tab) => set({ activeTab: tab }),
@@ -135,7 +68,7 @@ export const useTransactionStore = create<TransactionStore>((set, get) => {
 
     signOut: async () => {
       await supabase.auth.signOut();
-      set({ transactions: [], user: null });
+      set({ user: null });
     },
   };
 });

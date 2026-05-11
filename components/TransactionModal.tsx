@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { useAddTransaction, useUpdateTransaction } from "@/hooks/useTransactions";
 import {
   INCOME_CATEGORIES,
   EXPENSE_CATEGORIES,
@@ -12,8 +13,6 @@ import { today } from "@/lib/utils";
 
 export default function TransactionModal() {
   const {
-    addTransaction,
-    updateTransaction,
     setModalOpen,
     editingTransaction,
     setEditingTransaction,
@@ -22,6 +21,8 @@ export default function TransactionModal() {
     defaultDate,
     setDefaultDate,
   } = useTransactionStore();
+  const { mutate: addTransaction } = useAddTransaction();
+  const { mutate: updateTransaction } = useUpdateTransaction();
 
   const isEdit = !!editingTransaction;
   const prefill = isEdit ? null : prefillTransaction;
@@ -85,7 +86,7 @@ export default function TransactionModal() {
     };
 
     if (isEdit) {
-      updateTransaction(editingTransaction.id, payload);
+      updateTransaction({ id: editingTransaction.id, updates: payload });
     } else {
       addTransaction(payload);
     }

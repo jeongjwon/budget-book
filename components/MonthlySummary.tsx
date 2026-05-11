@@ -1,10 +1,12 @@
 'use client';
 
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useTransactionsQuery } from '@/hooks/useTransactions';
 import { getMonthTransactions, sumByType, formatAmount } from '@/lib/utils';
 
 export default function MonthlySummary() {
-  const { transactions, selectedYear, selectedMonth } = useTransactionStore();
+  const { selectedYear, selectedMonth } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const monthly = getMonthTransactions(transactions, selectedYear, selectedMonth);
 
   const income = sumByType(monthly, 'income');

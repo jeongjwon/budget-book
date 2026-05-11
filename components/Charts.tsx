@@ -15,6 +15,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionsQuery } from "@/hooks/useTransactions";
 import { getMonthTransactions, sumByType } from "@/lib/utils";
 import CollapsibleSection from "./CollapsibleSection";
 
@@ -49,7 +50,7 @@ function buildPieData(
 }
 
 function buildYearBarData(
-  transactions: ReturnType<typeof useTransactionStore.getState>["transactions"],
+  transactions: import("@/types/transaction").Transaction[],
   year: number,
 ) {
   return Array.from({ length: 12 }, (_, i) => {
@@ -87,7 +88,8 @@ function EmptyPie({ label, color }: { label: string; color: string }) {
 }
 
 export default function Charts() {
-  const { transactions, selectedYear, selectedMonth } = useTransactionStore();
+  const { selectedYear, selectedMonth } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const monthly = getMonthTransactions(

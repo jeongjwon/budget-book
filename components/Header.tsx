@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionsQuery } from "@/hooks/useTransactions";
 import { formatMonthYear, getPrevMonth, getNextMonth, downloadMonthlyReport } from "@/lib/utils";
 
 export default function Header() {
-  const { selectedYear, selectedMonth, setMonth, user, signOut, transactions } =
-    useTransactionStore();
+  const { selectedYear, selectedMonth, setMonth, user, signOut } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const [showMenu, setShowMenu] = useState(false);
 
   const goToPrev = () => {

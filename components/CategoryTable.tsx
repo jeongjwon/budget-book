@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionsQuery } from "@/hooks/useTransactions";
 import CollapsibleSection from "./CollapsibleSection";
 import {
   INCOME_CATEGORIES,
@@ -90,7 +91,8 @@ function CategorySection({
   categories: readonly Category[];
   type: TransactionType;
 }) {
-  const { transactions, selectedYear, selectedMonth } = useTransactionStore();
+  const { selectedYear, selectedMonth } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const [openCat, setOpenCat] = useState<Category | null>(null);
   const { year: prevYear, month: prevMonth } = getPrevMonth(
     selectedYear,
@@ -104,7 +106,7 @@ function CategorySection({
   );
   const prev = getMonthTransactions(transactions, prevYear, prevMonth);
 
-  const sumForCategory = (txs: typeof transactions, cat: Category) =>
+  const sumForCategory = (txs: import("@/types/transaction").Transaction[], cat: Category) =>
     txs.filter((t) => t.category === cat).reduce((s, t) => s + t.amount, 0);
 
   const rows = categories
@@ -158,7 +160,8 @@ function CategorySection({
 }
 
 export default function CategoryTable() {
-  const { transactions, selectedYear, selectedMonth } = useTransactionStore();
+  const { selectedYear, selectedMonth } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const monthly = getMonthTransactions(
     transactions,
     selectedYear,

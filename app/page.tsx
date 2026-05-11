@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTransactionStore } from "@/store/useTransactionStore";
+import { useTransactionsQuery } from "@/hooks/useTransactions";
 import Header from "@/components/Header";
 import TabBar from "@/components/TabBar";
 import CalendarView from "@/components/CalendarView";
@@ -15,14 +16,8 @@ import TransactionModal from "@/components/TransactionModal";
 import FloatingButton from "@/components/FloatingButton";
 
 export default function Home() {
-  const {
-    activeTab,
-    isModalOpen,
-    fetchTransactions,
-    isLoading,
-    user,
-    isAuthLoading,
-  } = useTransactionStore();
+  const { activeTab, isModalOpen, user, isAuthLoading } = useTransactionStore();
+  const { isLoading } = useTransactionsQuery();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -36,13 +31,6 @@ export default function Home() {
       router.replace("/login");
     }
   }, [user, isAuthLoading]);
-
-  // Fetch transactions once the user is confirmed
-  useEffect(() => {
-    if (user) {
-      fetchTransactions();
-    }
-  }, [user]);
 
   if (!mounted || isAuthLoading) {
     return (

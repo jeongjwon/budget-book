@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useTransactionsQuery } from '@/hooks/useTransactions';
+import { useRemoveTransaction } from '@/hooks/useTransactions';
 import { getMonthTransactions, groupByDate, formatAmount, sumByType } from '@/lib/utils';
 import { Transaction } from '@/types/transaction';
 
@@ -11,14 +13,9 @@ const TYPE_COLOR: Record<string, string> = {
 };
 
 export default function ListView() {
-  const {
-    transactions,
-    selectedYear,
-    selectedMonth,
-    removeTransaction,
-    setEditingTransaction,
-    setModalOpen,
-  } = useTransactionStore();
+  const { selectedYear, selectedMonth, setEditingTransaction, setModalOpen } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
+  const { mutate: removeTransaction } = useRemoveTransaction();
 
   // Track collapsed date groups (default: all expanded)
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useTransactionsQuery, useRemoveTransaction } from '@/hooks/useTransactions';
 import {
   getDaysInMonth,
   getFirstDayOfWeek,
@@ -35,8 +36,8 @@ function DayDetailSheet({
   txs: Transaction[];
   onClose: () => void;
 }) {
-  const { openModalForDate, setEditingTransaction, setModalOpen, removeTransaction } =
-    useTransactionStore();
+  const { openModalForDate, setEditingTransaction, setModalOpen } = useTransactionStore();
+  const { mutate: removeTransaction } = useRemoveTransaction();
 
   const inc = sumByType(txs, 'income');
   const exp = sumByType(txs, 'expense');
@@ -140,7 +141,8 @@ function DayDetailSheet({
 }
 
 export default function CalendarView() {
-  const { transactions, selectedYear, selectedMonth, openModalForDate } = useTransactionStore();
+  const { selectedYear, selectedMonth, openModalForDate } = useTransactionStore();
+  const { data: transactions = [] } = useTransactionsQuery();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
