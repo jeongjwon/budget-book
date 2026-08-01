@@ -18,6 +18,7 @@ export const EXPENSE_CATEGORIES = [
   "의료비",
   "선물",
   "여행",
+  "기타",
 ] as const;
 
 export type IncomeCategory = (typeof INCOME_CATEGORIES)[number];
